@@ -13,6 +13,7 @@ add_executable(
     PhysicsSim
     src/main.cpp
     src/physics/Integrator.cpp
+    src/physics/Particle.cpp
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp

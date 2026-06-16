@@ -20,14 +20,28 @@ int main()
     float horizontalForce = 1.0f;
     float dragCoeff = 0.5f;
 
+    float init_X_velo = 0.2f;
+    float init_Y_velo = 0.7f;
+    float init_X_pos = 0.0f;
+    float init_Y_pos = 0.2f;
+    float init_F = 0.0f;
+
+    enum class SimMode
+    {
+        Projectile,
+        Spring
+    };
+
+    SimMode mode = SimMode::Projectile;
+
 
     // First vec = position, second vec = velocity, third vec = force, float represents force.
     // These are the initial conditions to the equation F=ma
     particles.push_back({
-        glm::vec2(0.0f, 0.2f), // (x pos, y pos)
-        glm::vec2(0.2f, 0.4f), // (x velo, y velo)
-        glm::vec2(0.0f),
-        1.0f
+        glm::vec2(init_X_pos, init_Y_pos), // (x pos, y pos)
+        glm::vec2(init_X_velo, init_Y_velo), // (x velo, y velo)
+        glm::vec2(init_F),
+        particleMass
     });
 
     if (!glfwInit())
@@ -37,7 +51,7 @@ int main()
     }
 
     GLFWwindow* window = glfwCreateWindow(
-        1000,
+        1800,
         1000,
         "Physics Sim",
         nullptr,
@@ -75,44 +89,46 @@ int main()
         ImGui::SliderFloat("Mass", &particleMass, 0.1f, 10.0f);
         ImGui::SliderFloat("Horizontal force", &horizontalForce, -10.0f, 10.0f);
 
-        if (ImGui::Button("Reset Particle"))
+        if (ImGui::Button("Projectile"))
         {
-            particles[0].position = glm::vec2(0.0f, 0.2f);
-            particles[0].velocity = glm::vec2(0.2f, 0.4f);
-            particles[0].force = glm::vec2(0.0f);
-            particles[0].mass = particleMass;
+            mode = SimMode::Projectile;
+        }
+
+        if (ImGui::Button("Spring"))
+        {
+            mode = SimMode::Spring;
+        }
+
+        if (mode == SimMode::Projectile)
+        {
+            if (ImGui::Button("Reset Particle"))
+            {
+                particles[0].position = glm::vec2(init_X_pos, init_Y_pos);
+                particles[0].velocity = glm::vec2(init_X_velo, init_Y_velo);
+                particles[0].force = glm::vec2(init_F);
+                particles[0].mass = particleMass;
+            }
+            updateProjectile(particles, dt, gravity, horizontalForce, dragCoeff, particleMass, glm::vec2(init_X_velo, init_Y_velo), glm::vec2(init_X_pos, init_Y_pos), glm::vec2(init_F));
+        }
+        else if (mode == SimMode::Spring)
+        {
+            // renderSpring(springSystem);
         }
 
         ImGui::End();
-
-        for (Particle& p : particles)
-        {
-            p.mass = particleMass;
-            // F=mg=ma, uses gravity slider to change gravitational strength
-            // Implements a constant horizontal force, which when non-zero, brings mass back into the equation
-            // Implements drag (example: air resistance) to simulate real physics motion - drag always pushes against direction of force by a 'dragCoeff' constant
-            p.force += p.mass * glm::vec2(0.0f, gravity);
-            p.force += glm::vec2(horizontalForce, 0.0f);
-            p.force += -dragCoeff * p.velocity;
-            integrateEuler(p, dt);
-
-            if (p.position.y < -1.0f)
-            {
-                p.position = glm::vec2(0.0f, 0.2f);
-                p.velocity = glm::vec2(0.2f, 0.4f);
-                p.force = glm::vec2(0.0f);
-            }
-        }
 
         glClear(GL_COLOR_BUFFER_BIT);
 
         glPointSize(10.0f);
         glBegin(GL_POINTS);
 
-        // Renders a particle x and y pos for every particle in particles vector
-        for (const Particle& p : particles)
+        if (mode == SimMode::Projectile)
         {
-            glVertex2f(p.position.x, p.position.y);
+            renderParticles(particles);
+        }
+        else if (mode == SimMode::Spring)
+        {
+            // renderSpring(springSystem);
         }
 
         glEnd();
