@@ -13,6 +13,12 @@ add_executable(
     PhysicsSim
     src/main.cpp
     src/physics/Integrator.cpp
+    external/imgui/imgui.cpp
+    external/imgui/imgui_draw.cpp
+    external/imgui/imgui_tables.cpp
+    external/imgui/imgui_widgets.cpp
+    external/imgui/backends/imgui_impl_glfw.cpp
+    external/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 target_link_libraries(
@@ -27,4 +33,6 @@ target_include_directories(
     PhysicsSim
     PRIVATE
     ${CMAKE_SOURCE_DIR}/include
+    external/imgui
+    external/imgui/backends
 )
