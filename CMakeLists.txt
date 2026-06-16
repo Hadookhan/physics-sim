@@ -12,6 +12,7 @@ find_package(glm REQUIRED)
 add_executable(
     PhysicsSim
     src/main.cpp
+    src/physics/Integrator.cpp
 )
 
 target_link_libraries(
@@ -20,4 +21,10 @@ target_link_libraries(
     OpenGL::GL
     glfw
     glm::glm
+)
+
+target_include_directories(
+    PhysicsSim
+    PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
 )
