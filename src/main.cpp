@@ -6,6 +6,7 @@
 
 #include "physics/Particle.hpp"
 #include "physics/Integrator.hpp"
+#include "physics/Spring.hpp"
 
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -25,6 +26,25 @@ int main()
     float init_X_pos = 0.0f;
     float init_Y_pos = 0.2f;
     float init_F = 0.0f;
+
+    glm::vec2 anchor = glm::vec2(0.0f, 0.6f);
+    float restLength = 0.4f;
+    float stiffness = 5.0f;
+    float damping = 0.5f;
+
+    SpringMass springMass{
+        glm::vec2(init_X_pos,init_Y_pos),
+        glm::vec2(init_X_velo, init_Y_velo),
+        glm::vec2(init_F),
+        10.0f
+    };
+
+    Spring spring{
+        anchor,
+        restLength,
+        stiffness,
+        damping
+    };
 
     enum class SimMode
     {
@@ -84,11 +104,6 @@ int main()
 
         ImGui::Begin("Simulation Controls");
 
-        ImGui::SliderFloat("Gravity", &gravity, -10.0f, 0.0f);
-        ImGui::SliderFloat("Time step", &dt, 0.001f, 0.05f);
-        ImGui::SliderFloat("Mass", &particleMass, 0.1f, 10.0f);
-        ImGui::SliderFloat("Horizontal force", &horizontalForce, -10.0f, 10.0f);
-
         if (ImGui::Button("Projectile"))
         {
             mode = SimMode::Projectile;
@@ -99,8 +114,14 @@ int main()
             mode = SimMode::Spring;
         }
 
+        ImGui::SliderFloat("Time step", &dt, 0.001f, 0.05f);
+
         if (mode == SimMode::Projectile)
         {
+            ImGui::SliderFloat("Gravity", &gravity, -10.0f, 0.0f);
+            ImGui::SliderFloat("Mass", &particleMass, 0.1f, 10.0f);
+            ImGui::SliderFloat("Horizontal force", &horizontalForce, -10.0f, 10.0f);
+
             if (ImGui::Button("Reset Particle"))
             {
                 particles[0].position = glm::vec2(init_X_pos, init_Y_pos);
@@ -109,29 +130,29 @@ int main()
                 particles[0].mass = particleMass;
             }
             updateProjectile(particles, dt, gravity, horizontalForce, dragCoeff, particleMass, glm::vec2(init_X_velo, init_Y_velo), glm::vec2(init_X_pos, init_Y_pos), glm::vec2(init_F));
-        }
-        else if (mode == SimMode::Spring)
-        {
-            // renderSpring(springSystem);
-        }
-
-        ImGui::End();
-
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glPointSize(10.0f);
-        glBegin(GL_POINTS);
-
-        if (mode == SimMode::Projectile)
-        {
+            glClear(GL_COLOR_BUFFER_BIT);
             renderParticles(particles);
         }
         else if (mode == SimMode::Spring)
         {
-            // renderSpring(springSystem);
+            ImGui::SliderFloat("Spring stiffness", &spring.stiffness, 0.1f, 50.0f);
+            ImGui::SliderFloat("Spring damping", &spring.damping, 0.0f, 5.0f);
+            ImGui::SliderFloat("Rest length", &spring.restLength, 0.1f, 1.0f);
+            ImGui::SliderFloat("Spring mass", &springMass.mass, 0.1f, 20.0f);
+
+            if (ImGui::Button("Reset Spring"))
+            {
+                springMass.position = glm::vec2(init_X_pos, init_Y_pos);
+                springMass.velocity = glm::vec2(0.0f, 0.0f);
+                springMass.force = glm::vec2(0.0f);
+            }
+
+            updateSpringMass(springMass, spring, dt);
+            glClear(GL_COLOR_BUFFER_BIT);
+            renderSpringMass(springMass, spring);
         }
 
-        glEnd();
+        ImGui::End();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

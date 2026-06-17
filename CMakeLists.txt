@@ -14,6 +14,7 @@ add_executable(
     src/main.cpp
     src/physics/Integrator.cpp
     src/physics/Particle.cpp
+    src/physics/Spring.cpp
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp

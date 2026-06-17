@@ -7,10 +7,6 @@
 #include "physics/Particle.hpp"
 #include "physics/Integrator.hpp"
 
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "imgui.h"
-
 void resetProjectile(Particle& p, glm::vec2 position, glm::vec2 velocity, glm::vec2 force, float mass)
 {
     if (p.position.y < -1.0f)
@@ -41,9 +37,14 @@ void updateProjectile(std::vector<Particle>& particles, float dt, float gravity,
 
 void renderParticles(std::vector<Particle>& particles)
 {
+
+    glPointSize(10.0f);
+    glBegin(GL_POINTS);
     // Renders a particle x and y pos for every particle in particles vector
     for (const Particle& p : particles)
     {
         glVertex2f(p.position.x, p.position.y);
     }
+
+    glEnd();
 }
