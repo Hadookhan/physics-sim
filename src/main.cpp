@@ -184,11 +184,12 @@ int main()
         }
         else if (mode == SimMode::Spring)
         {
+            // Adds spring toggles to simulation controls panel
             springPanel.createPanel(springMass, spring, state);
 
-            updateSpringMass(springMass, spring, state.dt, state.gravity, state.useGravity);
+            updateSpringMass(springMass, spring, state);
             glClear(GL_COLOR_BUFFER_BIT);
-            renderSpringMass(springMass, spring, state.showVelocityVector, state.showForceVector);
+            renderSpringMass(springMass, spring, state);
         }
 
         ImGui::End();

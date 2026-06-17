@@ -5,7 +5,9 @@
 #include "physics/Spring.hpp"
 #include "physics/Integrator.hpp"
 
-void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gravity, bool useGravity)
+#include "data/State.hpp"
+
+void updateSpringMass(SpringMass& mass, const Spring& spring, SimulationState& state)
 {
     glm::vec2 displacement = mass.position - spring.anchor;
     float length = glm::length(displacement); // sqrt(x^2 + y^2)
@@ -25,17 +27,17 @@ void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gr
 
     mass.force += springForce + dampingForce;
 
-    if (useGravity)
+    if (state.useGravity)
     {
-        mass.force += mass.mass * glm::vec2(0.0f, gravity); // Makes spring system obey gravity
+        mass.force += mass.mass * glm::vec2(0.0f, state.gravity); // Makes spring system obey gravity
     }
 
     mass.netForce = mass.force;
 
-    integrateRK2(mass, dt);
+    integrateRK2(mass, state.dt);
 }
 
-void renderSpringMass(const SpringMass& mass, const Spring& spring, bool showVelocityVector, bool showForceVector)
+void renderSpringMass(const SpringMass& mass, const Spring& spring, SimulationState& state)
 {
     float velocityScale = 0.1f;
     float forceScale = 0.05f;
@@ -51,7 +53,7 @@ void renderSpringMass(const SpringMass& mass, const Spring& spring, bool showVel
     glEnd();
 
     // Lines below enable vectors of velocity and force acted on massed object
-    if (showVelocityVector)
+    if (state.showVelocityVector)
     {
         glBegin(GL_LINES);
         glVertex2f(mass.position.x, mass.position.y);
@@ -64,7 +66,7 @@ void renderSpringMass(const SpringMass& mass, const Spring& spring, bool showVel
         glEnd();
     }
 
-    if (showForceVector)
+    if (state.showForceVector)
     {
         glBegin(GL_LINES);
         glVertex2f(mass.position.x, mass.position.y);
