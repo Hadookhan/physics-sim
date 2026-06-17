@@ -1,13 +1,9 @@
 #pragma once
 #include <glm/vec2.hpp>
+#include "physics/PhysicsBody.hpp"
 
-struct SpringMass
+struct SpringMass : public PhysicsBody
 {
-    glm::vec2 position;
-    glm::vec2 velocity;
-    glm::vec2 force;
-    glm::vec2 netForce;
-    float mass;
 };
 
 struct Spring

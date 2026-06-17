@@ -3,6 +3,7 @@
 #include <glm/geometric.hpp>
 
 #include "physics/Spring.hpp"
+#include "physics/Integrator.hpp"
 
 void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gravity, bool useGravity)
 {
@@ -31,13 +32,7 @@ void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gr
 
     mass.netForce = mass.force;
 
-    // Eulers integration method on massed spring:
-    glm::vec2 acceleration = mass.force / mass.mass;
-
-    mass.velocity += acceleration * dt; // v=u+at
-    mass.position += mass.velocity * dt; // x_{n+1} = x_n + vt
-
-    mass.force = glm::vec2(0.0f);
+    integrateRK2(mass, dt);
 }
 
 void renderSpringMass(const SpringMass& mass, const Spring& spring, bool showVelocityVector, bool showForceVector)

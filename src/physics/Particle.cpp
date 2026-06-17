@@ -37,7 +37,7 @@ void updateProjectile(std::vector<Particle>& particles, float dt, float gravity,
         // Net force is used to store total force acted on the particle, before integrate function resets force to 0.
         p.netForce = p.force;
 
-        integrateRK2(p, dt);
+        integrateEuler(p, dt);
 
         resetProjectile(p, pos, velocity, force, particleMass);
     }

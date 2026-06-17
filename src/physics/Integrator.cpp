@@ -1,28 +1,29 @@
 #include "physics/Integrator.hpp"
+#include "physics/PhysicsBody.hpp"
 
-void integrateEuler(Particle& particle, float dt)
+void integrateEuler(PhysicsBody& body, float dt)
 {
-    glm::vec2 acceleration = particle.force / particle.mass;
+    glm::vec2 acceleration = body.force / body.mass;
 
-    // Using eulers numerical method to approx a particles velocity and position at the next time interval
-    particle.velocity += acceleration * dt;
-    particle.position += particle.velocity * dt;
+    // Using eulers numerical method to approx a physical bodies velocity and position at the next time interval
+    body.velocity += acceleration * dt;
+    body.position += body.velocity * dt;
 
-    particle.force = glm::vec2(0.0f);
+    body.force = glm::vec2(0.0f);
 }
 
-void integrateRK2(Particle& particle, float dt)
+void integrateRK2(PhysicsBody& body, float dt)
 {
     float step = 0.5f;
 
-    glm::vec2 acceleration = particle.force / particle.mass;
+    glm::vec2 acceleration = body.force / body.mass;
 
-    glm::vec2 midVelocity = particle.velocity + acceleration * (dt*step);
-    glm::vec2 midPosition = particle.position + particle.velocity * (dt*step);
+    glm::vec2 midVelocity = body.velocity + acceleration * (dt*step);
+    // glm::vec2 midPosition = body.position + body.velocity * (dt*step);
 
-    particle.position += midVelocity * dt;
-    particle.velocity += acceleration * dt;
+    body.position += midVelocity * dt;
+    body.velocity += acceleration * dt;
 
-    particle.force = glm::vec2(0.0f);
+    body.force = glm::vec2(0.0f);
 
 }
