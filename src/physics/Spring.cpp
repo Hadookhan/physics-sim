@@ -29,6 +29,8 @@ void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gr
         mass.force += mass.mass * glm::vec2(0.0f, gravity); // Makes spring system obey gravity
     }
 
+    mass.netForce = mass.force;
+
     // Eulers integration method on massed spring:
     glm::vec2 acceleration = mass.force / mass.mass;
 
@@ -38,8 +40,11 @@ void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gr
     mass.force = glm::vec2(0.0f);
 }
 
-void renderSpringMass(const SpringMass& mass, const Spring& spring)
+void renderSpringMass(const SpringMass& mass, const Spring& spring, bool showVelocityVector, bool showForceVector)
 {
+    float velocityScale = 0.1f;
+    float forceScale = 0.05f;
+
     glBegin(GL_LINES);
     glVertex2f(spring.anchor.x, spring.anchor.y);
     glVertex2f(mass.position.x, mass.position.y);
@@ -49,4 +54,30 @@ void renderSpringMass(const SpringMass& mass, const Spring& spring)
     glBegin(GL_POINTS);
     glVertex2f(mass.position.x, mass.position.y);
     glEnd();
+
+    // Lines below enable vectors of velocity and force acted on massed object
+    if (showVelocityVector)
+    {
+        glBegin(GL_LINES);
+        glVertex2f(mass.position.x, mass.position.y);
+
+        glVertex2f(
+            mass.position.x + mass.velocity.x * velocityScale,
+            mass.position.y + mass.velocity.y * velocityScale
+        );
+
+        glEnd();
+    }
+
+    if (showForceVector)
+    {
+        glBegin(GL_LINES);
+        glVertex2f(mass.position.x, mass.position.y);
+        glVertex2f(
+            mass.position.x + mass.netForce.x * forceScale,
+            mass.position.y + mass.netForce.y * forceScale
+        );
+
+        glEnd();
+    }
 }

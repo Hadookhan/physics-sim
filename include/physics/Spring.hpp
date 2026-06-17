@@ -6,6 +6,7 @@ struct SpringMass
     glm::vec2 position;
     glm::vec2 velocity;
     glm::vec2 force;
+    glm::vec2 netForce;
     float mass;
 };
 
@@ -18,4 +19,4 @@ struct Spring
 };
 
 void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gravity, bool useGravity);
-void renderSpringMass(const SpringMass& mass, const Spring& spring);
+void renderSpringMass(const SpringMass& mass, const Spring& spring, bool showVelocityVector, bool showForceVector);

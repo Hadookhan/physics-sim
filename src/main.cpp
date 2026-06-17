@@ -41,6 +41,7 @@ int main()
         glm::vec2(init_X_pos,init_Y_pos),
         glm::vec2(init_X_velo, init_Y_velo),
         glm::vec2(init_F),
+        glm::vec2(0.0f),
         10.0f
     };
 
@@ -178,7 +179,7 @@ int main()
 
             updateSpringMass(springMass, spring, dt, gravity, useGravity);
             glClear(GL_COLOR_BUFFER_BIT);
-            renderSpringMass(springMass, spring);
+            renderSpringMass(springMass, spring, showVelocityVector, showForceVector);
         }
 
         ImGui::End();
