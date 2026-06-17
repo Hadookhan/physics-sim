@@ -89,6 +89,8 @@ int main()
     // Using this section to log data to respective csv files:
     CSVLogger particleLogger("data/Particle.csv");
     particleLogger.writeParticleHeader();
+    CSVLogger springLogger("data/Spring.csv");
+    springLogger.writeSpringHeader();
 
     enum class SimMode
     {
@@ -195,7 +197,7 @@ int main()
 
             if (state.logTimer >= logInterval)
             {
-                particleLogger.logParticle(state.elapsed, particles[0]);
+                springLogger.logSpring(state.elapsed, springMass);
                 state.logTimer = 0.0f;
             }
         }
