@@ -18,7 +18,7 @@ void resetProjectile(Particle& p, glm::vec2 position, glm::vec2 velocity, glm::v
     }
 }
 
-void updateProjectile(std::vector<Particle>& particles, float dt, float gravity, float horizontalForce, float dragCoeff, float particleMass, glm::vec2 velocity, glm::vec2 pos, glm::vec2 force)
+void updateProjectile(std::vector<Particle>& particles, float dt, float gravity, float horizontalForce, float dragCoeff, float particleMass, const glm::vec2& velocity, const glm::vec2& pos, glm::vec2 force, bool useDrag)
 {
     for (Particle& p : particles)
     {
@@ -28,15 +28,25 @@ void updateProjectile(std::vector<Particle>& particles, float dt, float gravity,
         // Implements drag (example: air resistance) to simulate real physics motion - drag always pushes against direction of force by a 'dragCoeff' constant
         p.force += p.mass * glm::vec2(0.0f, gravity);
         p.force += glm::vec2(horizontalForce, 0.0f);
-        p.force += -dragCoeff * p.velocity;
+
+        if (useDrag)
+        {
+            p.force += -dragCoeff * p.velocity;
+        }
+
+        // Net force is used to store total force acted on the particle, before integrate function resets force to 0.
+        p.netForce = p.force;
+
         integrateRK2(p, dt);
 
         resetProjectile(p, pos, velocity, force, particleMass);
     }
 }
 
-void renderParticles(std::vector<Particle>& particles)
+void renderParticles(const std::vector<Particle>& particles, bool showVelocityVector, bool showForceVector)
 {
+    float velocityScale = 0.1f;
+    float forceScale = 0.05f;
 
     glPointSize(10.0f);
     glBegin(GL_POINTS);
@@ -45,6 +55,37 @@ void renderParticles(std::vector<Particle>& particles)
     {
         glVertex2f(p.position.x, p.position.y);
     }
-
     glEnd();
+
+    // Lines below enable vectors of velocity and force acted on particle
+    if (showVelocityVector)
+    {
+        glBegin(GL_LINES);
+        for (const Particle& p : particles)
+        {
+            glVertex2f(p.position.x, p.position.y);
+
+            glVertex2f(
+                p.position.x + p.velocity.x * velocityScale,
+                p.position.y + p.velocity.y * velocityScale
+            );
+        }
+
+        glEnd();
+    }
+
+    if (showForceVector)
+    {
+        glBegin(GL_LINES);
+        for (const Particle& p : particles)
+        {
+            glVertex2f(p.position.x, p.position.y);
+            glVertex2f(
+                p.position.x + p.netForce.x * forceScale,
+                p.position.y + p.netForce.y * forceScale
+            );
+        }
+        glEnd();
+    }
+
 }
