@@ -18,4 +18,9 @@ struct SimulationState
 
     bool showVelocityVector;
     bool showForceVector;
+
+    float particleMass;
+
+    float elapsed;
+    float logTimer;
 };

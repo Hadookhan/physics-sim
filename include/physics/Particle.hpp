@@ -17,6 +17,6 @@ glm::vec2 calcGravityForce(Particle& p, float gravity);
 glm::vec2 calcHorizontalForce(float horizontalForce);
 glm::vec2 calcDragForce(Particle& p, float dragCoeff);
 
-void updateProjectile(std::vector<Particle>& particles, float particleMass, SimulationState& state);
+void updateProjectile(std::vector<Particle>& particles, SimulationState& state);
 void renderParticles(const std::vector<Particle>& particles, SimulationState& state);
-void resetProjectile(Particle& p, SimulationState& state, float mass);
+void resetProjectile(Particle& p, SimulationState& state);

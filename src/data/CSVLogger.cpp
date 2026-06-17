@@ -22,25 +22,16 @@ CSVLogger::~CSVLogger()
 
 void CSVLogger::writeParticleHeader()
 {
-    file << "time,x,y,vx,vy,Dfx,Dfy,Gfx,Gfy,Hfx,Hfy,Nfx,Nfy,mass\n";
+    file << "time,x,y,vx,vy,NetForce_x,NetForce_y,mass\n";
 }
 
-void CSVLogger::logParticle(float time, const Particle& p, glm::vec2 dragForce, glm::vec2 gravityForce, glm::vec2 horizontalForce)
+void CSVLogger::logParticle(float time, const Particle& p)
 {
     file << time << ","
          << p.position.x << ","
          << p.position.y << ","
          << p.velocity.x << ","
          << p.velocity.y << ","
-
-         << dragForce.x << ","
-         << dragForce.y << ","
-
-         << gravityForce.x << "," // I understand this is useless, however I want to capture the complete vector
-         << gravityForce.y << ","
-
-         << horizontalForce.x << ","
-         << horizontalForce.y << "," // I understand this is useless too, same reason
 
          << p.netForce.x << ","
          << p.netForce.y << ","

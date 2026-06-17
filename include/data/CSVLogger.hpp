@@ -19,7 +19,7 @@ public:
 
     void writeSpringHeader();
 
-    void logParticle(float time, const Particle& particle, glm::vec2 dragForce, glm::vec2 gravityForce, glm::vec2 horizontalForce);
+    void logParticle(float time, const Particle& particle);
 
     void logSpring(float time, const SpringMass& mass);
 };

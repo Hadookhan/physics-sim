@@ -6,6 +6,5 @@
 class StatePanel
 {
 public:
-
     void createPanel(SimulationState& state);
 };

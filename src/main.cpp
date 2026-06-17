@@ -26,7 +26,7 @@ int main()
     float dt = 0.016f;
     float totalTime = 0.0f;
     float logTimer = 0.0f;
-    float logInterval = 1.0f;
+    const float logInterval = 1.0f; // Logs will be made every time logTimer = logInterval
 
     float gravity = -0.5f;
     float particleMass = 1.0f;
@@ -60,10 +60,16 @@ int main()
         useDrag,
         useGravity,
         showVelocityVector,
-        showForceVector
+        showForceVector,
+        particleMass,
+        totalTime,
+        logTimer
     };
 
+    // All panels which will be rendered in the GUI
     StatePanel statePanel;
+    ProjectilePanel projectilePanel;
+    SpringPanel springPanel;
 
     SpringMass springMass{
         glm::vec2(state.initPos.x,state.initPos.y),
@@ -142,6 +148,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // Creates panel of initial states which the user can toggle
         statePanel.createPanel(state);
 
         ImGui::Begin("Simulation Controls");
@@ -159,64 +166,25 @@ int main()
         if (mode == SimMode::Projectile)
         {
 
-            ImGui::SliderFloat("Gravity", &state.gravity, -10.0f, 0.0f);
-            ImGui::SliderFloat("Mass", &particleMass, 0.1f, 10.0f);
-            ImGui::SliderFloat("Horizontal force", &state.horizontalForce, -10.0f, 10.0f);
-            ImGui::Checkbox("Enable Drag", &state.useDrag);
+            // Adds projectile toggles to simulation controls panel
+            projectilePanel.createPanel(particles, state);
 
-            if (state.useDrag)
-            {
-                ImGui::SliderFloat("Drag", &state.dragCoeff, 0.0f, 1.0f);
-            }
-
-            if (ImGui::Button("Reset Particle"))
-            {
-                particles[0].position = state.initPos;
-                particles[0].velocity = state.initVel;
-                particles[0].force = glm::vec2(state.initForce);
-                particles[0].mass = particleMass;
-                totalTime = 0.0f;
-                logTimer = 0.0f;
-            }
-
-            updateProjectile(particles, particleMass, state);
+            updateProjectile(particles, state);
             glClear(GL_COLOR_BUFFER_BIT);
             renderParticles(particles, state);
 
-            totalTime += state.dt;
-            logTimer += state.dt;
+            state.elapsed += state.dt;
+            state.logTimer += state.dt;
 
-            if (logTimer >= logInterval)
+            if (state.logTimer >= logInterval)
             {
-                glm::vec2 gravityForceVector = calcGravityForce(particles[0], state.gravity);
-                glm::vec2 horizontalForceVector = calcHorizontalForce(state.horizontalForce);
-                glm::vec2 dragForceVector = calcDragForce(particles[0], state.dragCoeff);
-
-                particleLogger.logParticle(totalTime, particles[0], dragForceVector, gravityForceVector, horizontalForceVector);
-                logTimer = 0.0f;
+                particleLogger.logParticle(state.elapsed, particles[0]);
+                state.logTimer = 0.0f;
             }
         }
         else if (mode == SimMode::Spring)
         {
-            ImGui::SliderFloat("Spring stiffness", &spring.stiffness, 0.1f, 50.0f);
-            ImGui::SliderFloat("Spring damping", &spring.damping, 0.0f, 5.0f);
-            ImGui::SliderFloat("Rest length", &spring.restLength, 0.1f, 1.0f);
-            ImGui::SliderFloat("Spring mass", &springMass.mass, 0.1f, 20.0f);
-            ImGui::Checkbox("Enable Gravity", &state.useGravity);
-
-            if (state.useGravity)
-            {
-                ImGui::SliderFloat("Gravity", &state.gravity, -10.0f, 0.0f);
-            }
-
-            if (ImGui::Button("Reset Spring"))
-            {
-                springMass.position = state.initPos;
-                springMass.velocity = glm::vec2(0.0f, 0.0f);
-                springMass.force = glm::vec2(0.0f);
-                totalTime = 0.0f;
-                logTimer = 0.0f;
-            }
+            springPanel.createPanel(springMass, spring, state);
 
             updateSpringMass(springMass, spring, state.dt, state.gravity, state.useGravity);
             glClear(GL_COLOR_BUFFER_BIT);

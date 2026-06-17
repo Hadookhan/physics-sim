@@ -9,14 +9,14 @@
 
 #include "data/State.hpp"
 
-void resetProjectile(Particle& p, SimulationState& state, float mass)
+void resetProjectile(Particle& p, SimulationState& state)
 {
     if (p.position.y < -1.0f)
     { 
         p.position = state.initPos;
         p.velocity = state.initVel;
         p.force = glm::vec2(state.initForce);
-        p.mass = mass;
+        p.mass = state.particleMass;
     }
 }
 
@@ -33,11 +33,11 @@ glm::vec2 calcDragForce(Particle& p, float dragCoeff)
     return -dragCoeff * p.velocity;
 }
 
-void updateProjectile(std::vector<Particle>& particles, float particleMass, SimulationState& state)
+void updateProjectile(std::vector<Particle>& particles, SimulationState& state)
 {
     for (Particle& p : particles)
     {
-        p.mass = particleMass;
+        p.mass = state.particleMass;
         // F=mg=ma, uses gravity slider to change gravitational strength
         // Implements a constant horizontal force, which when non-zero, brings mass back into the equation
         // Implements drag (example: air resistance) to simulate real physics motion - drag always pushes against direction of force by a 'dragCoeff' constant
@@ -54,7 +54,7 @@ void updateProjectile(std::vector<Particle>& particles, float particleMass, Simu
 
         integrateEuler(p, state.dt);
 
-        resetProjectile(p, state, particleMass);
+        resetProjectile(p, state);
     }
 }
 
