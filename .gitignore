@@ -21,6 +21,7 @@ compile_commands.json
 *.so
 *.dll
 *.dylib
+*ini
 
 # Visual Studio Code
 .vscode/
