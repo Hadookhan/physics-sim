@@ -1,13 +1,12 @@
 #pragma once
+#include <glm/vec2.hpp>
 
 struct SimulationState
 {
     float dt;
 
-    float xPos;
-    float yPos;
-    float xVel;
-    float yVel;
+    glm::vec2 initPos;
+    glm::vec2 initVel;
     float initForce;
 
     float gravity;

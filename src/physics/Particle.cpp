@@ -9,13 +9,13 @@
 
 #include "data/State.hpp"
 
-void resetProjectile(Particle& p, glm::vec2 position, glm::vec2 velocity, glm::vec2 force, float mass)
+void resetProjectile(Particle& p, SimulationState& state, float mass)
 {
     if (p.position.y < -1.0f)
     { 
-        p.position = position;
-        p.velocity = velocity;
-        p.force = force;
+        p.position = state.initPos;
+        p.velocity = state.initVel;
+        p.force = glm::vec2(state.initForce);
         p.mass = mass;
     }
 }
@@ -33,7 +33,7 @@ glm::vec2 calcDragForce(Particle& p, float dragCoeff)
     return -dragCoeff * p.velocity;
 }
 
-void updateProjectile(std::vector<Particle>& particles, float particleMass, const glm::vec2& velocity, const glm::vec2& pos, glm::vec2 force, SimulationState& state)
+void updateProjectile(std::vector<Particle>& particles, float particleMass, SimulationState& state)
 {
     for (Particle& p : particles)
     {
@@ -54,7 +54,7 @@ void updateProjectile(std::vector<Particle>& particles, float particleMass, cons
 
         integrateEuler(p, state.dt);
 
-        resetProjectile(p, pos, velocity, force, particleMass);
+        resetProjectile(p, state, particleMass);
     }
 }
 

@@ -49,27 +49,10 @@ int main()
     bool showVelocityVector = false;
     bool showForceVector = false;
 
-    SpringMass springMass{
-        glm::vec2(init_X_pos,init_Y_pos),
-        glm::vec2(init_X_velo, init_Y_velo),
-        glm::vec2(init_F),
-        glm::vec2(0.0f),
-        10.0f
-    };
-
-    Spring spring{
-        anchor,
-        restLength,
-        stiffness,
-        damping
-    };
-
     SimulationState state{
         dt,
-        init_X_pos,
-        init_Y_pos,
-        init_X_velo,
-        init_Y_velo,
+        glm::vec2(init_X_pos, init_Y_pos),
+        glm::vec2(init_X_velo, init_Y_velo),
         init_F,
         gravity,
         dragCoeff,
@@ -81,6 +64,21 @@ int main()
     };
 
     StatePanel statePanel;
+
+    SpringMass springMass{
+        glm::vec2(state.initPos.x,state.initPos.y),
+        glm::vec2(state.initVel.x, state.initVel.y),
+        glm::vec2(state.initForce),
+        glm::vec2(0.0f),
+        10.0f
+    };
+
+    Spring spring{
+        anchor,
+        restLength,
+        stiffness,
+        damping
+    };
 
     // Using this section to log data to respective csv files:
     CSVLogger particleLogger("data/Particle.csv");
@@ -98,10 +96,10 @@ int main()
     // First vec = position, second vec = velocity, third vec = force, float represents force.
     // These are the initial conditions to the equation F=ma
     particles.push_back({
-        glm::vec2(init_X_pos, init_Y_pos), // (x pos, y pos)
-        glm::vec2(init_X_velo, init_Y_velo), // (x velo, y velo)
-        glm::vec2(init_F),
-        glm::vec2(0.0f),
+        state.initPos, // (x pos, y pos)
+        state.initVel, // (x velo, y velo)
+        glm::vec2(state.initForce),
+        glm::vec2(0.0f), // net force
         particleMass
     });
 
@@ -173,15 +171,15 @@ int main()
 
             if (ImGui::Button("Reset Particle"))
             {
-                particles[0].position = glm::vec2(state.xPos, state.yPos);
-                particles[0].velocity = glm::vec2(state.xVel, state.yVel);
+                particles[0].position = state.initPos;
+                particles[0].velocity = state.initVel;
                 particles[0].force = glm::vec2(state.initForce);
                 particles[0].mass = particleMass;
                 totalTime = 0.0f;
                 logTimer = 0.0f;
             }
 
-            updateProjectile(particles, particleMass, glm::vec2(state.xVel, state.yVel), glm::vec2(state.xPos, state.yPos), glm::vec2(init_F), state);
+            updateProjectile(particles, particleMass, state);
             glClear(GL_COLOR_BUFFER_BIT);
             renderParticles(particles, state);
 
@@ -213,7 +211,7 @@ int main()
 
             if (ImGui::Button("Reset Spring"))
             {
-                springMass.position = glm::vec2(state.xPos, state.yPos);
+                springMass.position = state.initPos;
                 springMass.velocity = glm::vec2(0.0f, 0.0f);
                 springMass.force = glm::vec2(0.0f);
                 totalTime = 0.0f;
