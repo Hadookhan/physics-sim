@@ -10,6 +10,10 @@ struct Particle : public PhysicsBody
 {
 };
 
+glm::vec2 calcGravityForce(Particle& p, float gravity);
+glm::vec2 calcHorizontalForce(float horizontalForce);
+glm::vec2 calcDragForce(Particle& p, float dragCoeff);
+
 void updateProjectile(std::vector<Particle>& particles, float dt, float gravity, float horizontalForce, float dragCoeff, float particleMass, const glm::vec2& velocity, const glm::vec2& pos, glm::vec2 force, bool useDrag);
 void renderParticles(const std::vector<Particle>& particles, bool showVelocityVector, bool showForceVector);
 void resetProjectile(Particle& p, glm::vec2 position, glm::vec2 velocity, float mass);

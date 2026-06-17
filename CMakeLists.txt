@@ -12,9 +12,13 @@ find_package(glm REQUIRED)
 add_executable(
     PhysicsSim
     src/main.cpp
+
     src/physics/Integrator.cpp
     src/physics/Particle.cpp
     src/physics/Spring.cpp
+
+    src/data/CSVLogger.cpp
+    
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp

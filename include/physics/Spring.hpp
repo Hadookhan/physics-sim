@@ -6,6 +6,8 @@ struct SpringMass : public PhysicsBody
 {
 };
 
+// Below struct is the actual spring, which is anchored at some (x,y) position
+
 struct Spring
 {
     glm::vec2 anchor;

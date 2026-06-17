@@ -18,6 +18,19 @@ void resetProjectile(Particle& p, glm::vec2 position, glm::vec2 velocity, glm::v
     }
 }
 
+glm::vec2 calcGravityForce(Particle& p, float gravity)
+{
+    return p.mass * glm::vec2(0.0f, gravity);
+}
+glm::vec2 calcHorizontalForce(float horizontalForce)
+{
+    return glm::vec2(horizontalForce, 0.0f);
+}
+glm::vec2 calcDragForce(Particle& p, float dragCoeff)
+{
+    return -dragCoeff * p.velocity;
+}
+
 void updateProjectile(std::vector<Particle>& particles, float dt, float gravity, float horizontalForce, float dragCoeff, float particleMass, const glm::vec2& velocity, const glm::vec2& pos, glm::vec2 force, bool useDrag)
 {
     for (Particle& p : particles)
@@ -26,12 +39,12 @@ void updateProjectile(std::vector<Particle>& particles, float dt, float gravity,
         // F=mg=ma, uses gravity slider to change gravitational strength
         // Implements a constant horizontal force, which when non-zero, brings mass back into the equation
         // Implements drag (example: air resistance) to simulate real physics motion - drag always pushes against direction of force by a 'dragCoeff' constant
-        p.force += p.mass * glm::vec2(0.0f, gravity);
-        p.force += glm::vec2(horizontalForce, 0.0f);
+        p.force += calcGravityForce(p, gravity);
+        p.force += calcHorizontalForce(horizontalForce);
 
         if (useDrag)
         {
-            p.force += -dragCoeff * p.velocity;
+            p.force += calcDragForce(p, dragCoeff);
         }
 
         // Net force is used to store total force acted on the particle, before integrate function resets force to 0.

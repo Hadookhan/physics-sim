@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/vec2.hpp>
 
+#include "data/CSVLogger.hpp"
+
 #include "physics/Particle.hpp"
 #include "physics/Integrator.hpp"
 #include "physics/Spring.hpp"
@@ -15,7 +17,12 @@
 int main()
 {
     std::vector<Particle> particles;
+
     float dt = 0.016f;
+    float totalTime = 0.0f;
+    float logTimer = 0.0f;
+    float logInterval = 1.0f;
+
     float gravity = -0.5f;
     float particleMass = 1.0f;
     float horizontalForce = 1.0f;
@@ -51,6 +58,10 @@ int main()
         stiffness,
         damping
     };
+
+    // Using this section to log data to respective csv files:
+    CSVLogger particleLogger("data/Particle.csv");
+    particleLogger.writeParticleHeader();
 
     enum class SimMode
     {
@@ -136,6 +147,7 @@ int main()
 
         if (mode == SimMode::Projectile)
         {
+
             ImGui::SliderFloat("Gravity", &gravity, -10.0f, 0.0f);
             ImGui::SliderFloat("Mass", &particleMass, 0.1f, 10.0f);
             ImGui::SliderFloat("Horizontal force", &horizontalForce, -10.0f, 10.0f);
@@ -152,10 +164,25 @@ int main()
                 particles[0].velocity = glm::vec2(init_X_velo, init_Y_velo);
                 particles[0].force = glm::vec2(init_F);
                 particles[0].mass = particleMass;
+                totalTime = 0.0f;
+                logTimer = 0.0f;
             }
             updateProjectile(particles, dt, gravity, horizontalForce, dragCoeff, particleMass, glm::vec2(init_X_velo, init_Y_velo), glm::vec2(init_X_pos, init_Y_pos), glm::vec2(init_F), useDrag);
             glClear(GL_COLOR_BUFFER_BIT);
             renderParticles(particles, showVelocityVector, showForceVector);
+
+            totalTime += dt;
+            logTimer += dt;
+
+            if (logTimer >= logInterval)
+            {
+                glm::vec2 gravityForceVector = calcGravityForce(particles[0], gravity);
+                glm::vec2 horizontalForceVector = calcHorizontalForce(horizontalForce);
+                glm::vec2 dragForceVector = calcDragForce(particles[0], dragCoeff);
+
+                particleLogger.logParticle(totalTime, particles[0], dragForceVector, gravityForceVector, horizontalForceVector);
+                logTimer = 0.0f;
+            }
         }
         else if (mode == SimMode::Spring)
         {
@@ -175,6 +202,8 @@ int main()
                 springMass.position = glm::vec2(init_X_pos, init_Y_pos);
                 springMass.velocity = glm::vec2(0.0f, 0.0f);
                 springMass.force = glm::vec2(0.0f);
+                totalTime = 0.0f;
+                logTimer = 0.0f;
             }
 
             updateSpringMass(springMass, spring, dt, gravity, useGravity);

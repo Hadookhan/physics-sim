@@ -38,6 +38,7 @@ compile_commands.json
 
 # Logs
 *.log
+*.csv
 
 # Temporary files
 tmp/
