@@ -143,6 +143,7 @@ int main()
     {
 
         glfwPollEvents();
+        glClear(GL_COLOR_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -170,7 +171,6 @@ int main()
             projectilePanel.createPanel(particles, state);
 
             updateProjectile(particles, state);
-            glClear(GL_COLOR_BUFFER_BIT);
             renderParticles(particles, state);
 
             state.elapsed += state.dt;
@@ -188,8 +188,16 @@ int main()
             springPanel.createPanel(springMass, spring, state);
 
             updateSpringMass(springMass, spring, state);
-            glClear(GL_COLOR_BUFFER_BIT);
             renderSpringMass(springMass, spring, state);
+
+            state.elapsed += state.dt;
+            state.logTimer += state.dt;
+
+            if (state.logTimer >= logInterval)
+            {
+                particleLogger.logParticle(state.elapsed, particles[0]);
+                state.logTimer = 0.0f;
+            }
         }
 
         ImGui::End();
