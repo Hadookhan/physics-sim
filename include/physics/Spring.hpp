@@ -17,5 +17,5 @@ struct Spring
     float damping;
 };
 
-void updateSpringMass(SpringMass& mass, const Spring& spring, float dt);
+void updateSpringMass(SpringMass& mass, const Spring& spring, float dt, float gravity, bool useGravity);
 void renderSpringMass(const SpringMass& mass, const Spring& spring);

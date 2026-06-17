@@ -31,6 +31,7 @@ int main()
     float restLength = 0.4f;
     float stiffness = 5.0f;
     float damping = 0.5f;
+    bool useGravity = false;
 
     SpringMass springMass{
         glm::vec2(init_X_pos,init_Y_pos),
@@ -139,6 +140,12 @@ int main()
             ImGui::SliderFloat("Spring damping", &spring.damping, 0.0f, 5.0f);
             ImGui::SliderFloat("Rest length", &spring.restLength, 0.1f, 1.0f);
             ImGui::SliderFloat("Spring mass", &springMass.mass, 0.1f, 20.0f);
+            ImGui::Checkbox("Enable Gravity", &useGravity);
+
+            if (useGravity == true)
+            {
+                ImGui::SliderFloat("Gravity", &gravity, -10.0f, 0.0f);
+            }
 
             if (ImGui::Button("Reset Spring"))
             {
@@ -147,7 +154,7 @@ int main()
                 springMass.force = glm::vec2(0.0f);
             }
 
-            updateSpringMass(springMass, spring, dt);
+            updateSpringMass(springMass, spring, dt, gravity, useGravity);
             glClear(GL_COLOR_BUFFER_BIT);
             renderSpringMass(springMass, spring);
         }
