@@ -5,6 +5,11 @@
 #include <glm/vec2.hpp>
 
 #include "data/CSVLogger.hpp"
+#include "data/State.hpp"
+
+#include "gui/StatePanel.hpp"
+#include "gui/SpringPanel.hpp"
+#include "gui/ProjectilePanel.hpp"
 
 #include "physics/Particle.hpp"
 #include "physics/Integrator.hpp"
@@ -58,6 +63,24 @@ int main()
         stiffness,
         damping
     };
+
+    SimulationState state{
+        dt,
+        init_X_pos,
+        init_Y_pos,
+        init_X_velo,
+        init_Y_velo,
+        init_F,
+        gravity,
+        dragCoeff,
+        horizontalForce,
+        useDrag,
+        useGravity,
+        showVelocityVector,
+        showForceVector
+    };
+
+    StatePanel statePanel;
 
     // Using this section to log data to respective csv files:
     CSVLogger particleLogger("data/Particle.csv");
@@ -121,17 +144,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Initial Conditions");
-
-        ImGui::SliderFloat("Time step", &dt, 0.001f, 0.05f);
-        ImGui::SliderFloat("X position", &init_X_pos, -1.0f, 1.0f);
-        ImGui::SliderFloat("Y position", &init_Y_pos, -1.0f, 1.0f);
-        ImGui::SliderFloat("X velocity", &init_X_velo, 0.0f, 1.0f);
-        ImGui::SliderFloat("Y velocity", &init_Y_velo, 0.0f, 1.0f);
-        ImGui::Checkbox("Show Velocity", &showVelocityVector);
-        ImGui::Checkbox("Show Force", &showForceVector);
-
-        ImGui::End();
+        statePanel.createPanel(state);
 
         ImGui::Begin("Simulation Controls");
 
@@ -148,37 +161,38 @@ int main()
         if (mode == SimMode::Projectile)
         {
 
-            ImGui::SliderFloat("Gravity", &gravity, -10.0f, 0.0f);
+            ImGui::SliderFloat("Gravity", &state.gravity, -10.0f, 0.0f);
             ImGui::SliderFloat("Mass", &particleMass, 0.1f, 10.0f);
-            ImGui::SliderFloat("Horizontal force", &horizontalForce, -10.0f, 10.0f);
-            ImGui::Checkbox("Enable Drag", &useDrag);
+            ImGui::SliderFloat("Horizontal force", &state.horizontalForce, -10.0f, 10.0f);
+            ImGui::Checkbox("Enable Drag", &state.useDrag);
 
-            if (useDrag)
+            if (state.useDrag)
             {
-                ImGui::SliderFloat("Drag", &dragCoeff, 0.0f, 1.0f);
+                ImGui::SliderFloat("Drag", &state.dragCoeff, 0.0f, 1.0f);
             }
 
             if (ImGui::Button("Reset Particle"))
             {
-                particles[0].position = glm::vec2(init_X_pos, init_Y_pos);
-                particles[0].velocity = glm::vec2(init_X_velo, init_Y_velo);
-                particles[0].force = glm::vec2(init_F);
+                particles[0].position = glm::vec2(state.xPos, state.yPos);
+                particles[0].velocity = glm::vec2(state.xVel, state.yVel);
+                particles[0].force = glm::vec2(state.initForce);
                 particles[0].mass = particleMass;
                 totalTime = 0.0f;
                 logTimer = 0.0f;
             }
-            updateProjectile(particles, dt, gravity, horizontalForce, dragCoeff, particleMass, glm::vec2(init_X_velo, init_Y_velo), glm::vec2(init_X_pos, init_Y_pos), glm::vec2(init_F), useDrag);
-            glClear(GL_COLOR_BUFFER_BIT);
-            renderParticles(particles, showVelocityVector, showForceVector);
 
-            totalTime += dt;
-            logTimer += dt;
+            updateProjectile(particles, particleMass, glm::vec2(state.xVel, state.yVel), glm::vec2(state.xPos, state.yPos), glm::vec2(init_F), state);
+            glClear(GL_COLOR_BUFFER_BIT);
+            renderParticles(particles, state);
+
+            totalTime += state.dt;
+            logTimer += state.dt;
 
             if (logTimer >= logInterval)
             {
-                glm::vec2 gravityForceVector = calcGravityForce(particles[0], gravity);
-                glm::vec2 horizontalForceVector = calcHorizontalForce(horizontalForce);
-                glm::vec2 dragForceVector = calcDragForce(particles[0], dragCoeff);
+                glm::vec2 gravityForceVector = calcGravityForce(particles[0], state.gravity);
+                glm::vec2 horizontalForceVector = calcHorizontalForce(state.horizontalForce);
+                glm::vec2 dragForceVector = calcDragForce(particles[0], state.dragCoeff);
 
                 particleLogger.logParticle(totalTime, particles[0], dragForceVector, gravityForceVector, horizontalForceVector);
                 logTimer = 0.0f;
@@ -190,25 +204,25 @@ int main()
             ImGui::SliderFloat("Spring damping", &spring.damping, 0.0f, 5.0f);
             ImGui::SliderFloat("Rest length", &spring.restLength, 0.1f, 1.0f);
             ImGui::SliderFloat("Spring mass", &springMass.mass, 0.1f, 20.0f);
-            ImGui::Checkbox("Enable Gravity", &useGravity);
+            ImGui::Checkbox("Enable Gravity", &state.useGravity);
 
-            if (useGravity)
+            if (state.useGravity)
             {
-                ImGui::SliderFloat("Gravity", &gravity, -10.0f, 0.0f);
+                ImGui::SliderFloat("Gravity", &state.gravity, -10.0f, 0.0f);
             }
 
             if (ImGui::Button("Reset Spring"))
             {
-                springMass.position = glm::vec2(init_X_pos, init_Y_pos);
+                springMass.position = glm::vec2(state.xPos, state.yPos);
                 springMass.velocity = glm::vec2(0.0f, 0.0f);
                 springMass.force = glm::vec2(0.0f);
                 totalTime = 0.0f;
                 logTimer = 0.0f;
             }
 
-            updateSpringMass(springMass, spring, dt, gravity, useGravity);
+            updateSpringMass(springMass, spring, state.dt, state.gravity, state.useGravity);
             glClear(GL_COLOR_BUFFER_BIT);
-            renderSpringMass(springMass, spring, showVelocityVector, showForceVector);
+            renderSpringMass(springMass, spring, state.showVelocityVector, state.showForceVector);
         }
 
         ImGui::End();

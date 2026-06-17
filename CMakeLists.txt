@@ -18,7 +18,11 @@ add_executable(
     src/physics/Spring.cpp
 
     src/data/CSVLogger.cpp
-    
+
+    src/gui/ProjectilePanel.cpp
+    src/gui/SpringPanel.cpp
+    src/gui/StatePanel.cpp
+
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
     external/imgui/imgui_tables.cpp
