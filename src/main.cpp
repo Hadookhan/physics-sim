@@ -11,11 +11,13 @@
 #include "gui/SpringPanel.hpp"
 #include "gui/ProjectilePanel.hpp"
 #include "gui/OrbitPanel.hpp"
+#include "gui/ElectricPanel.hpp"
 
 #include "physics/Particle.hpp"
 #include "physics/Integrator.hpp"
 #include "physics/Spring.hpp"
 #include "physics/Orbit.hpp"
+#include "physics/Electric.hpp"
 
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -56,6 +58,9 @@ int main()
     bool showForceVector = false;
     bool isStatic = false;
 
+    glm::vec2 chargePos1 = glm::vec2(-0.5f, 0.0f);
+    glm::vec2 chargePos2 = glm::vec2(0.5f, 0.0f);
+
     SimulationState state{
         dt,
         glm::vec2(init_X_pos, init_Y_pos),
@@ -74,7 +79,9 @@ int main()
         logTimer,
         G,
         orbitVelocity,
-        showOrbitLine
+        showOrbitLine,
+        chargePos1,
+        chargePos2
     };
 
     // All panels which will be rendered in the GUI
@@ -82,6 +89,7 @@ int main()
     ProjectilePanel projectilePanel;
     SpringPanel springPanel;
     OrbitPanel orbitPanel;
+    ElectricPanel electricPanel;
 
     // Spring system initialisation
     SpringMass springMass{
@@ -123,6 +131,31 @@ int main()
         state.G
     };
 
+    Charge charge1{
+        chargePos1,
+        glm::vec2(0.0f),
+        glm::vec2(0.0f),
+        glm::vec2(0.0f),
+        1.0f,
+        1.0f,
+        true
+    };
+
+    Charge charge2{
+        chargePos2,
+        glm::vec2(0.0f),
+        glm::vec2(0.0f),
+        glm::vec2(0.0f),
+        1.0f,
+        -1.0f,
+        true
+    };
+
+    ElectricSystem electricSystem{
+        std::vector<Charge>{charge1, charge2},
+        0.001f
+    };
+
     // Using this section to log data to respective csv files:
     CSVLogger particleLogger("data/Particle.csv");
     if (particleLogger.isEmpty())
@@ -147,7 +180,8 @@ int main()
     {
         Projectile,
         Spring,
-        Orbit
+        Orbit,
+        Electric
     };
 
     SimMode mode = SimMode::Projectile;
@@ -224,6 +258,12 @@ int main()
             state.elapsed = 0.0f;
             mode = SimMode::Orbit;
         }
+        if (ImGui::Button("Electric"))
+        {
+            state.isStatic = true;
+            state.elapsed = 0.0f;
+            mode = SimMode::Electric;
+        }
 
         if (mode == SimMode::Projectile)
         {
@@ -275,6 +315,21 @@ int main()
             if (state.logTimer >= logInterval)
             {
                 orbitLogger.logOrbit(state.elapsed, orbitSystem);
+                state.logTimer = 0.0f;
+            }
+        }
+        else if (mode == SimMode::Electric)
+        {
+            electricPanel.createPanel(electricSystem, state);
+
+            updateElectric(electricSystem, state);
+            renderElectric(electricSystem, state);
+
+            state.elapsed += state.dt;
+            state.logTimer += state.dt;
+
+            if (state.logTimer >= logInterval)
+            {
                 state.logTimer = 0.0f;
             }
         }

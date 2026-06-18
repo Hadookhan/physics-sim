@@ -41,7 +41,7 @@ void OrbitPanel::createPanel(OrbitSystem& system, SimulationState& state)
 
     if (ImGui::Button("Reset Orbit"))
     {
-         system.satellites.resize(1); // Destroys all satellites except the first one
+        system.satellites.resize(1); // Destroys all satellites except the first one
 
         system.central.position = glm::vec2(0.0f, 0.0f);
         system.central.velocity = glm::vec2(0.0f);
@@ -58,6 +58,8 @@ void OrbitPanel::createPanel(OrbitSystem& system, SimulationState& state)
             satellite.netForce = glm::vec2(0.0f);
             satellite.isStatic = false;
         }
+        state.elapsed = 0.0f;
+        state.logTimer = 0.0f;
     }
 
     ImGui::Checkbox("Show Orbit line", &state.showOrbitLine);

@@ -29,4 +29,7 @@ struct SimulationState
     float G;
     float orbitVelocity;
     bool showOrbitLine;
+
+    glm::vec2 chargePos1;
+    glm::vec2 chargePos2;
 };

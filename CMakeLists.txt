@@ -17,6 +17,7 @@ add_executable(
     src/physics/Particle.cpp
     src/physics/Spring.cpp
     src/physics/Orbit.cpp
+    src/physics/Electric.cpp
 
     src/data/CSVLogger.cpp
 
@@ -24,6 +25,7 @@ add_executable(
     src/gui/SpringPanel.cpp
     src/gui/StatePanel.cpp
     src/gui/OrbitPanel.cpp
+    src/gui/ElectricPanel.cpp
 
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp
