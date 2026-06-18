@@ -125,11 +125,23 @@ int main()
 
     // Using this section to log data to respective csv files:
     CSVLogger particleLogger("data/Particle.csv");
-    particleLogger.writeParticleHeader();
+    if (particleLogger.isEmpty())
+    {
+        particleLogger.writeParticleHeader();
+    }
+
     CSVLogger springLogger("data/Spring.csv");
-    springLogger.writeSpringHeader();
+    if (springLogger.isEmpty())
+    {
+        springLogger.writeSpringHeader();
+    }
+
     CSVLogger orbitLogger("data/Orbit.csv");
-    orbitLogger.writeOrbitHeader();
+    if (orbitLogger.isEmpty())
+    {
+        orbitLogger.writeOrbitHeader();
+    }
+
 
     enum class SimMode
     {
@@ -198,15 +210,18 @@ int main()
 
         if (ImGui::Button("Projectile"))
         {
+            state.elapsed = 0.0f;
             mode = SimMode::Projectile;
         }
 
         if (ImGui::Button("Spring"))
         {
+            state.elapsed = 0.0f;
             mode = SimMode::Spring;
         }
         if (ImGui::Button("Orbit"))
         {
+            state.elapsed = 0.0f;
             mode = SimMode::Orbit;
         }
 

@@ -11,13 +11,10 @@
 
 void resetProjectile(Particle& p, SimulationState& state)
 {
-    if (p.position.y < -1.0f)
-    { 
-        p.position = state.initPos;
-        p.velocity = state.initVel;
-        p.force = glm::vec2(state.initForce);
-        p.mass = state.particleMass;
-    }
+    p.position = state.initPos;
+    p.velocity = state.initVel;
+    p.force = glm::vec2(state.initForce);
+    p.mass = state.particleMass;
 }
 
 glm::vec2 calcGravityForce(Particle& p, float gravity)
@@ -54,7 +51,10 @@ void updateProjectile(std::vector<Particle>& particles, SimulationState& state)
 
         integrateEuler(p, state.dt);
 
-        resetProjectile(p, state);
+        if (p.position.y < -1.0f)
+        { 
+            resetProjectile(p, state);
+        }
     }
 }
 

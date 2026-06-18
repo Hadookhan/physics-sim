@@ -27,4 +27,6 @@ public:
     void logSpring(float time, const SpringMass& mass);
 
     void logOrbit(float time, const OrbitSystem& system);
+
+    bool isEmpty();
 };

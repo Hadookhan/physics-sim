@@ -82,3 +82,8 @@ void CSVLogger::logOrbit(float time, const OrbitSystem& s)
          << s.satellite.mass << ","
          << s.central.mass << "\n";
 }
+
+bool CSVLogger::isEmpty()
+{
+    return file.tellp() == 0;
+}
