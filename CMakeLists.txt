@@ -16,12 +16,14 @@ add_executable(
     src/physics/Integrator.cpp
     src/physics/Particle.cpp
     src/physics/Spring.cpp
+    src/physics/Orbit.cpp
 
     src/data/CSVLogger.cpp
 
     src/gui/ProjectilePanel.cpp
     src/gui/SpringPanel.cpp
     src/gui/StatePanel.cpp
+    src/gui/OrbitPanel.cpp
 
     external/imgui/imgui.cpp
     external/imgui/imgui_draw.cpp

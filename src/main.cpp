@@ -10,10 +10,12 @@
 #include "gui/StatePanel.hpp"
 #include "gui/SpringPanel.hpp"
 #include "gui/ProjectilePanel.hpp"
+#include "gui/OrbitPanel.hpp"
 
 #include "physics/Particle.hpp"
 #include "physics/Integrator.hpp"
 #include "physics/Spring.hpp"
+#include "physics/Orbit.hpp"
 
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -23,7 +25,7 @@ int main()
 {
     std::vector<Particle> particles;
 
-    float dt = 0.016f;
+    float dt = 0.0001f;
     float totalTime = 0.0f;
     float logTimer = 0.0f;
     const float logInterval = 1.0f; // Logs will be made every time logTimer = logInterval
@@ -32,6 +34,10 @@ int main()
     float particleMass = 1.0f;
     float horizontalForce = 1.0f;
     float dragCoeff = 0.5f;
+
+    float G = 0.01f; // gravitational constant
+    float orbitVelocity = 1.0f;
+    bool showOrbitLine = true;
 
     float init_X_velo = 0.2f;
     float init_Y_velo = 0.7f;
@@ -48,6 +54,7 @@ int main()
     bool useDrag = true;
     bool showVelocityVector = false;
     bool showForceVector = false;
+    bool isStatic = false;
 
     SimulationState state{
         dt,
@@ -61,19 +68,25 @@ int main()
         useGravity,
         showVelocityVector,
         showForceVector,
+        isStatic,
         particleMass,
         totalTime,
-        logTimer
+        logTimer,
+        G,
+        orbitVelocity,
+        showOrbitLine
     };
 
     // All panels which will be rendered in the GUI
     StatePanel statePanel;
     ProjectilePanel projectilePanel;
     SpringPanel springPanel;
+    OrbitPanel orbitPanel;
 
+    // Spring system initialisation
     SpringMass springMass{
-        glm::vec2(state.initPos.x,state.initPos.y),
-        glm::vec2(state.initVel.x, state.initVel.y),
+        state.initPos,
+        state.initVel,
         glm::vec2(state.initForce),
         glm::vec2(0.0f),
         10.0f
@@ -86,6 +99,30 @@ int main()
         damping
     };
 
+    OrbitBody central{
+        glm::vec2(0.0f, 0.0f),
+        glm::vec2(0.0f),
+        glm::vec2(0.0f),
+        glm::vec2(0.0f),
+        100.0f,
+        true
+    };
+
+    OrbitBody satellite{
+        glm::vec2(0.6f, 0.0f),
+        glm::vec2(0.0f, 1.29f),
+        glm::vec2(0.0f),
+        glm::vec2(0.0f),
+        1.0f,
+        false
+    };
+
+    OrbitSystem orbitSystem{
+        central,
+        satellite,
+        state.G
+    };
+
     // Using this section to log data to respective csv files:
     CSVLogger particleLogger("data/Particle.csv");
     particleLogger.writeParticleHeader();
@@ -95,7 +132,8 @@ int main()
     enum class SimMode
     {
         Projectile,
-        Spring
+        Spring,
+        Orbit
     };
 
     SimMode mode = SimMode::Projectile;
@@ -165,6 +203,10 @@ int main()
         {
             mode = SimMode::Spring;
         }
+        if (ImGui::Button("Orbit"))
+        {
+            mode = SimMode::Orbit;
+        }
 
         if (mode == SimMode::Projectile)
         {
@@ -200,6 +242,15 @@ int main()
                 springLogger.logSpring(state.elapsed, springMass);
                 state.logTimer = 0.0f;
             }
+        }
+        else if (mode == SimMode::Orbit)
+        {
+            orbitPanel.createPanel(orbitSystem, state);
+
+            orbitSystem.G = state.G;
+
+            updateOrbit(orbitSystem, state);
+            renderOrbit(orbitSystem, state);
         }
 
         ImGui::End();

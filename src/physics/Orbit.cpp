@@ -1,0 +1,51 @@
+#include <glm/vec2.hpp>
+#include <glm/geometric.hpp>
+#include <GLFW/glfw3.h>
+
+#include "physics/Orbit.hpp"
+#include "physics/Integrator.hpp"
+
+#include "data/State.hpp"
+
+void updateOrbit(OrbitSystem& system, SimulationState& state)
+{
+    glm::vec2 displacement = system.central.position - system.satellite.position;
+    float distance = glm::length(displacement);
+    if (distance < 0.001f)
+    {
+        return;
+    }
+    glm::vec2 direction = displacement / distance;
+
+    
+    float softening = 0.01f;
+    float distanceSquared = distance * distance + softening * softening;
+    // Newtons law of gravitation
+    glm::vec2 gravityForce = system.G * system.central.mass * system.satellite.mass / distanceSquared*direction;
+
+    system.satellite.force += gravityForce;
+    system.satellite.netForce = gravityForce;
+
+    integrateRK2(system.satellite, state.dt);
+}
+
+void renderOrbit(const OrbitSystem& system, SimulationState& state)
+{
+    glPointSize(16.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(system.central.position.x, system.central.position.y);
+    glEnd();
+
+    glPointSize(8.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(system.satellite.position.x, system.satellite.position.y);
+    glEnd();
+
+    if (state.showOrbitLine)
+    {
+        glBegin(GL_LINES);
+        glVertex2f(system.central.position.x, system.central.position.y);
+        glVertex2f(system.satellite.position.x, system.satellite.position.y);
+        glEnd();
+    }
+}
