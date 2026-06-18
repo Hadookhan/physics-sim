@@ -1,6 +1,7 @@
 #include <glm/vec2.hpp>
 #include <glm/geometric.hpp>
 #include <GLFW/glfw3.h>
+#include <vector>
 
 #include "physics/Orbit.hpp"
 #include "physics/Integrator.hpp"
@@ -9,24 +10,27 @@
 
 void updateOrbit(OrbitSystem& system, SimulationState& state)
 {
-    glm::vec2 displacement = system.central.position - system.satellite.position;
-    float distance = glm::length(displacement);
-    if (distance < 0.001f)
+    for (auto& satellite : system.satellites)
     {
-        return;
+        glm::vec2 displacement = (system.central.position - satellite.position);
+        float distance = glm::length(displacement);
+        if (distance < 0.001f)
+        {
+            continue; // Avoid division by zero or extremely large forces
+        }
+        glm::vec2 direction = displacement / distance;
+
+        
+        float softening = 0.01f;
+        float distanceSquared = distance * distance + softening * softening;
+
+        // Newtons law of gravitation
+        glm::vec2 gravityForce = system.G * system.central.mass * satellite.mass / distanceSquared * direction;
+        satellite.force += gravityForce;
+        satellite.netForce = gravityForce;
+
+        integrateRK2(satellite, state.dt);
     }
-    glm::vec2 direction = displacement / distance;
-
-    
-    float softening = 0.01f;
-    float distanceSquared = distance * distance + softening * softening;
-    // Newtons law of gravitation
-    glm::vec2 gravityForce = system.G * system.central.mass * system.satellite.mass / distanceSquared*direction;
-
-    system.satellite.force += gravityForce;
-    system.satellite.netForce = gravityForce;
-
-    integrateRK2(system.satellite, state.dt);
 }
 
 void renderOrbit(const OrbitSystem& system, SimulationState& state)
@@ -38,14 +42,20 @@ void renderOrbit(const OrbitSystem& system, SimulationState& state)
 
     glPointSize(8.0f);
     glBegin(GL_POINTS);
-    glVertex2f(system.satellite.position.x, system.satellite.position.y);
+    for (const auto& satellite : system.satellites)
+    {
+        glVertex2f(satellite.position.x, satellite.position.y);
+    }
     glEnd();
 
     if (state.showOrbitLine)
     {
         glBegin(GL_LINES);
-        glVertex2f(system.central.position.x, system.central.position.y);
-        glVertex2f(system.satellite.position.x, system.satellite.position.y);
+        for (const auto& satellite : system.satellites)
+        {
+            glVertex2f(system.central.position.x, system.central.position.y);
+            glVertex2f(satellite.position.x, satellite.position.y);
+        }
         glEnd();
     }
 }

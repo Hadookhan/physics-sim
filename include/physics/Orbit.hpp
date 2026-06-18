@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <glm/vec2.hpp>
 
 #include "physics/PhysicsBody.hpp"
@@ -14,7 +15,7 @@ struct OrbitBody : public PhysicsBody
 struct OrbitSystem
 {
     OrbitBody central;
-    OrbitBody satellite;
+    std::vector<OrbitBody> satellites;
     float G;
 };
 

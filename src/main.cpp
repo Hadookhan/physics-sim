@@ -119,7 +119,7 @@ int main()
 
     OrbitSystem orbitSystem{
         central,
-        satellite,
+        std::vector<OrbitBody>{satellite},
         state.G
     };
 

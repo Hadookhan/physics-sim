@@ -70,16 +70,15 @@ void CSVLogger::logSpring(float time, const SpringMass& m)
 void CSVLogger::logOrbit(float time, const OrbitSystem& s)
 {
     file << time << ","
-         << s.satellite.position.x << ","
-         << s.satellite.position.y << ","
+         << s.satellites[0].position.x << ","
+         << s.satellites[0].position.y << ","
 
-         << s.satellite.velocity.x << ","
-         << s.satellite.velocity.y << ","
+         << s.satellites[0].velocity.x << ","
+         << s.satellites[0].velocity.y << ","
+         << s.satellites[0].netForce.x << ","
+         << s.satellites[0].netForce.y << ","
 
-         << s.satellite.netForce.x << ","
-         << s.satellite.netForce.y << ","
-
-         << s.satellite.mass << ","
+         << s.satellites[0].mass << ","
          << s.central.mass << "\n";
 }
 
