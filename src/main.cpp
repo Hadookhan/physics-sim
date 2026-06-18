@@ -128,6 +128,8 @@ int main()
     particleLogger.writeParticleHeader();
     CSVLogger springLogger("data/Spring.csv");
     springLogger.writeSpringHeader();
+    CSVLogger orbitLogger("data/Orbit.csv");
+    orbitLogger.writeOrbitHeader();
 
     enum class SimMode
     {
@@ -251,6 +253,15 @@ int main()
 
             updateOrbit(orbitSystem, state);
             renderOrbit(orbitSystem, state);
+
+            state.elapsed += state.dt;
+            state.logTimer += state.dt;
+
+            if (state.logTimer >= logInterval)
+            {
+                orbitLogger.logOrbit(state.elapsed, orbitSystem);
+                state.logTimer = 0.0f;
+            }
         }
 
         ImGui::End();

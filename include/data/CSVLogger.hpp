@@ -5,6 +5,7 @@
 
 #include "physics/Particle.hpp"
 #include "physics/Spring.hpp"
+#include "physics/Orbit.hpp"
 
 class CSVLogger
 {
@@ -19,7 +20,11 @@ public:
 
     void writeSpringHeader();
 
+    void writeOrbitHeader();
+
     void logParticle(float time, const Particle& particle);
 
     void logSpring(float time, const SpringMass& mass);
+
+    void logOrbit(float time, const OrbitSystem& system);
 };

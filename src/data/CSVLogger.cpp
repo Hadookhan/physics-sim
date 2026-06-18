@@ -3,6 +3,8 @@
 
 #include "physics/Particle.hpp"
 #include "physics/Spring.hpp"
+#include "physics/Orbit.hpp"
+
 #include "data/CSVLogger.hpp"
 
 #include <glm/vec2.hpp>
@@ -30,12 +32,17 @@ void CSVLogger::writeSpringHeader()
     file << "time,x,y,vx,vy,NetForce_x,NetForce_y,mass\n";
 }
 
+void CSVLogger::writeOrbitHeader()
+{
+    file << "time,x,y,vx,vy,NetForce_x,NetForce_y,SatelliteMass,CentralMass\n";
+}
+
 void CSVLogger::logParticle(float time, const Particle& p)
 {
     file << time << ","
          << p.position.x << ","
          << p.position.y << ","
-         
+
          << p.velocity.x << ","
          << p.velocity.y << ","
 
@@ -58,4 +65,20 @@ void CSVLogger::logSpring(float time, const SpringMass& m)
          << m.netForce.y << ","
 
          << m.mass << "\n";
+}
+
+void CSVLogger::logOrbit(float time, const OrbitSystem& s)
+{
+    file << time << ","
+         << s.satellite.position.x << ","
+         << s.satellite.position.y << ","
+
+         << s.satellite.velocity.x << ","
+         << s.satellite.velocity.y << ","
+
+         << s.satellite.netForce.x << ","
+         << s.satellite.netForce.y << ","
+
+         << s.satellite.mass << ","
+         << s.central.mass << "\n";
 }
