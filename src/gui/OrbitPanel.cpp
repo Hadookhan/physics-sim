@@ -16,6 +16,19 @@ void OrbitPanel::createPanel(OrbitSystem& system, SimulationState& state)
     int satelliteCount = static_cast<int>(system.satellites.size());
     ImGui::Text("Number of Satellites: %d", satelliteCount);
 
+    if (ImGui::Button("Add Satellite"))
+    {
+        OrbitBody newSatellite{
+            glm::vec2(0.6f, 0.0f),
+            glm::vec2(0.0f, state.orbitVelocity),
+            glm::vec2(0.0f),
+            glm::vec2(0.0f),
+            1.0f,
+            false
+        };
+        system.satellites.push_back(newSatellite);
+    }
+
     ImGui::SliderFloat("G", &state.G, 0.001f, 0.1f);
     ImGui::SliderFloat("Central Mass", &system.central.mass, 1.0f, 1000.0f);
     ImGui::SliderFloat("Initial Tangential Velocity", &state.orbitVelocity, 0.0f, 5.0f);
@@ -45,19 +58,6 @@ void OrbitPanel::createPanel(OrbitSystem& system, SimulationState& state)
             satellite.netForce = glm::vec2(0.0f);
             satellite.isStatic = false;
         }
-    }
-
-    if (ImGui::Button("Add Satellite"))
-    {
-        OrbitBody newSatellite{
-            glm::vec2(0.6f, 0.0f),
-            glm::vec2(0.0f, state.orbitVelocity),
-            glm::vec2(0.0f),
-            glm::vec2(0.0f),
-            1.0f,
-            false
-        };
-        system.satellites.push_back(newSatellite);
     }
 
     ImGui::Checkbox("Show Orbit line", &state.showOrbitLine);

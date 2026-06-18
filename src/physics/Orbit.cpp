@@ -35,7 +35,10 @@ void updateOrbit(OrbitSystem& system, SimulationState& state)
 
 void renderOrbit(const OrbitSystem& system, SimulationState& state)
 {
-    glPointSize(16.0f);
+    float velocityScale = 0.1f;
+    float forceScale = 0.05f;
+
+    glPointSize(25.0f);
     glBegin(GL_POINTS);
     glVertex2f(system.central.position.x, system.central.position.y);
     glEnd();
@@ -47,6 +50,34 @@ void renderOrbit(const OrbitSystem& system, SimulationState& state)
         glVertex2f(satellite.position.x, satellite.position.y);
     }
     glEnd();
+
+    if (state.showVelocityVector)
+    {
+        glBegin(GL_LINES);
+        for (const auto& satellite : system.satellites)
+        {
+            glVertex2f(satellite.position.x, satellite.position.y);
+            glVertex2f(
+                satellite.position.x + satellite.velocity.x * velocityScale,
+                satellite.position.y + satellite.velocity.y * velocityScale
+            );
+        }
+        glEnd();
+    }
+
+    if (state.showForceVector)
+    {
+        glBegin(GL_LINES);
+        for (const auto& satellite : system.satellites)
+        {
+            glVertex2f(satellite.position.x, satellite.position.y);
+            glVertex2f(
+                satellite.position.x + satellite.netForce.x * forceScale,
+                satellite.position.y + satellite.netForce.y * forceScale
+            );
+        }
+        glEnd();
+    }
 
     if (state.showOrbitLine)
     {
