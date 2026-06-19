@@ -63,4 +63,9 @@ void OrbitPanel::createPanel(OrbitSystem& system, SimulationState& state)
     }
 
     ImGui::Checkbox("Show Orbit line", &state.showOrbitLine);
+    ImGui::Checkbox("Show Gravity Field", &state.showFieldVectors);
+    if (state.showFieldVectors)
+    {
+        ImGui::SliderFloat("Field Scale", &state.fieldScale, 0.001f, 0.2f);
+    }
 }

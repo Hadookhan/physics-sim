@@ -32,4 +32,8 @@ struct SimulationState
 
     glm::vec2 chargePos1;
     glm::vec2 chargePos2;
+
+    bool showFieldVectors;
+    float fieldSpacing;
+    float fieldScale;
 };

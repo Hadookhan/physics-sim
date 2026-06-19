@@ -1,11 +1,13 @@
 #include <glm/vec2.hpp>
 #include <glm/geometric.hpp>
+#include <glm/gtx/norm.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <math.h>
 
 #include "physics/Electric.hpp"
 #include "physics/Integrator.hpp"
+#include "physics/Field.hpp"
 
 #include "data/State.hpp"
 
@@ -26,10 +28,6 @@ void updateElectric(ElectricSystem& system, SimulationState& state)
 
             Charge& charge_j = system.charges[j];
 
-            if (state.isStatic)
-            {
-                continue;
-            }
             glm::vec2 r = charge_i.position - charge_j.position;
             float distanceSquared = glm::dot(r, r) + softening * softening;
 
@@ -59,7 +57,7 @@ void updateElectric(ElectricSystem& system, SimulationState& state)
 void renderElectric(const ElectricSystem& system, SimulationState& state)
 {
     float velocityScale = 0.1f;
-    float forceScale = 0.05f;
+    float forceScale = 0.005f;
 
 
     for (const Charge& charge : system.charges)
@@ -85,5 +83,45 @@ void renderElectric(const ElectricSystem& system, SimulationState& state)
             glVertex2f(charge.position.x + charge.netForce.x * forceScale, charge.position.y + charge.netForce.y * forceScale);
             glEnd();
         }
+
+        if (state.showFieldVectors)
+        {
+            std::vector<FieldVector> field = computeElectricField(system);
+            renderFieldVectors(field, state);
+        }
     }
+}
+
+std::vector<FieldVector> computeElectricField(const ElectricSystem& system)
+{
+    std::vector<FieldVector> field;
+
+    float k = 1.0f / (4.0f * M_PI * system.spacePermittivity);
+
+    for (float x = -1.0f; x <= 1.0f; x += 0.15f)
+    {
+        for (float y = -1.0f; y <= 1.0f; y += 0.15f)
+        {
+            glm::vec2 point(x, y);
+            glm::vec2 totalField(0.0f);
+
+            for (const Charge& charge : system.charges)
+            {
+                glm::vec2 r = point - charge.position;
+
+                float distanceSquared =
+                    glm::dot(r, r) + 0.01f;
+
+                glm::vec2 direction =
+                    glm::normalize(r);
+
+                totalField +=
+                    k * charge.charge / distanceSquared * direction;
+            }
+
+            field.push_back({ point, totalField });
+        }
+    }
+
+    return field;
 }

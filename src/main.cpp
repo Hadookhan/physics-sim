@@ -18,6 +18,7 @@
 #include "physics/Spring.hpp"
 #include "physics/Orbit.hpp"
 #include "physics/Electric.hpp"
+#include "physics/Field.hpp"
 
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -27,7 +28,7 @@ int main()
 {
     std::vector<Particle> particles;
 
-    float dt = 0.0001f;
+    float dt = 0.001f;
     float totalTime = 0.0f;
     float logTimer = 0.0f;
     const float logInterval = 1.0f; // Logs will be made every time logTimer = logInterval
@@ -58,6 +59,11 @@ int main()
     bool showForceVector = false;
     bool isStatic = false;
 
+    // Used for electrical and gravitational field visualisation
+    bool showFieldVectors = false;
+    float fieldSpacing = 0.15f;
+    float fieldScale = 0.08f;
+
     glm::vec2 chargePos1 = glm::vec2(-0.5f, 0.0f);
     glm::vec2 chargePos2 = glm::vec2(0.5f, 0.0f);
 
@@ -81,7 +87,10 @@ int main()
         orbitVelocity,
         showOrbitLine,
         chargePos1,
-        chargePos2
+        chargePos2,
+        showFieldVectors,
+        fieldSpacing,
+        fieldScale
     };
 
     // All panels which will be rendered in the GUI

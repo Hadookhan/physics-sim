@@ -1,10 +1,12 @@
 #include <glm/vec2.hpp>
 #include <glm/geometric.hpp>
+#include <glm/gtx/norm.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
 
 #include "physics/Orbit.hpp"
 #include "physics/Integrator.hpp"
+#include "physics/Field.hpp"
 
 #include "data/State.hpp"
 
@@ -89,4 +91,44 @@ void renderOrbit(const OrbitSystem& system, SimulationState& state)
         }
         glEnd();
     }
+
+    if (state.showFieldVectors)
+    {
+        std::vector<FieldVector> field = computeGravityField(system);
+        renderFieldVectors(field, state);
+    }
+}
+
+std::vector<FieldVector> computeGravityField(const OrbitSystem& system)
+{
+    std::vector<FieldVector> field;
+
+    for (float x = -1.0f; x <= 1.0f; x += 0.15f)
+    {
+        for (float y = -1.0f; y <= 1.0f; y += 0.15f)
+        {
+            glm::vec2 point(x, y);
+
+            glm::vec2 displacement =
+                system.central.position - point;
+
+            float distanceSquared =
+                glm::dot(displacement, displacement) + 0.01f;
+
+            if (distanceSquared < 0.0001f)
+            {
+                continue;
+            }
+
+            glm::vec2 direction =
+                glm::normalize(displacement);
+
+            glm::vec2 value =
+                system.G * system.central.mass / distanceSquared * direction;
+
+            field.push_back({ point, value });
+        }
+    }
+
+    return field;
 }

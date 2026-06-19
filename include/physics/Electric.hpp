@@ -4,6 +4,7 @@
 
 #include "physics/PhysicsBody.hpp"
 #include "data/State.hpp"
+#include "physics/Field.hpp"
 
 struct Charge : public PhysicsBody
 {
@@ -19,3 +20,4 @@ struct ElectricSystem
 
 void updateElectric(ElectricSystem& system, SimulationState& state);
 void renderElectric(const ElectricSystem& system, SimulationState& state);
+std::vector<FieldVector> computeElectricField(const ElectricSystem& system);

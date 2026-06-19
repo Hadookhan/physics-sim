@@ -4,6 +4,7 @@
 #include <glm/vec2.hpp>
 
 #include "physics/PhysicsBody.hpp"
+#include "physics/Field.hpp"
 
 #include "data/State.hpp"
 
@@ -21,3 +22,4 @@ struct OrbitSystem
 
 void updateOrbit(OrbitSystem& system, SimulationState& state);
 void renderOrbit(const OrbitSystem& system, SimulationState& state);
+std::vector<FieldVector> computeGravityField(const OrbitSystem& system);

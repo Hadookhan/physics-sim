@@ -17,6 +17,12 @@ void ElectricPanel::createPanel(ElectricSystem& system, SimulationState& state)
 
     ImGui::SliderFloat("Space Permittivity", &system.spacePermittivity, 0.001f, 0.1f);
     ImGui::Checkbox("Enable Static Charges", &state.isStatic);
+    ImGui::Checkbox("Show Electric Field", &state.showFieldVectors);
+    if (state.showFieldVectors)
+    {
+        ImGui::SliderFloat("Field Scale", &state.fieldScale, 0.001f, 0.2f);
+    }
+
     for (auto& charge : system.charges)
     {
         charge.isStatic = state.isStatic;

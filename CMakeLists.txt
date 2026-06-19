@@ -18,6 +18,7 @@ add_executable(
     src/physics/Spring.cpp
     src/physics/Orbit.cpp
     src/physics/Electric.cpp
+    src/physics/Field.cpp
 
     src/data/CSVLogger.cpp
 
